@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #0c8ee5;
+  --primary-dark: #006fc3;
+  --background: #0a0f1a;
+  --surface: #111827;
+  --surface-elevated: #1f2937;
+  --border: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0a0f1a 0%, #0d1424 50%, #111827 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.8);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+}
+
+/* Input styles */
+input, textarea, select {
+  font-family: inherit;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f9fafb;
+  -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #0c8ee5 0%, #36a9f4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 20px rgba(12, 142, 229, 0.15);
+}
+
+.glow-lg {
+  box-shadow: 0 0 40px rgba(12, 142, 229, 0.2);
+}
+
+/* Button base styles */
+.btn-primary {
+  @apply bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+}
+
+.btn-secondary {
+  @apply bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+}
+
+/* Card styles */
+.card {
+  @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
+}
+
+/* Form input styles */
+.input {
+  @apply w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200;
+}
+
+.label {
+  @apply block text-sm font-medium text-slate-300 mb-1.5;
+}
+
+/* Table styles */
+.table-header {
+  @apply bg-slate-800/70 text-slate-400 text-xs uppercase tracking-wider font-semibold;
+}
+
+.table-row {
+  @apply border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors;
+}
+
+/* Status badges */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-green-500/20 text-green-400;
+}
+
+.badge-warning {
+  @apply bg-yellow-500/20 text-yellow-400;
+}
+
+.badge-error {
+  @apply bg-red-500/20 text-red-400;
+}
+
+.badge-info {
+  @apply bg-blue-500/20 text-blue-400;
+}
+
+.badge-neutral {
+  @apply bg-slate-500/20 text-slate-400;
+}
+
+/* Pipeline stage colors */
+.stage-lead { background-color: #94a3b8; }
+.stage-qualified { background-color: #3b82f6; }
+.stage-proposal { background-color: #8b5cf6; }
+.stage-negotiation { background-color: #f59e0b; }
+.stage-won { background-color: #22c55e; }
+.stage-lost { background-color: #ef4444; }
+
+/* Transition utilities */
+.transition-fast {
+  @apply transition-all duration-150 ease-out;
+}
+
+.transition-normal {
+  @apply transition-all duration-200 ease-out;
+}
+
+.transition-slow {
+  @apply transition-all duration-300 ease-out;
+}
