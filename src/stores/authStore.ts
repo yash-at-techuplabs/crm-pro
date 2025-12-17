@@ -149,11 +149,39 @@ export const useAuthStore = create<AuthState>()(
           
           if (error) throw error
           
-          set({
-            user: data.user,
-            session: data.session,
-            isLoading: false
-          })
+          // Wait a moment for the trigger to create the profile, then fetch it
+          if (data.user) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.user.id)
+              .single()
+            
+            // If profile exists but full_name wasn't set by trigger, update it
+            if (profile && !profile.full_name && fullName) {
+              await supabase
+                .from('profiles')
+                .update({ full_name: fullName })
+                .eq('id', data.user.id)
+              
+              profile.full_name = fullName
+            }
+            
+            set({
+              user: data.user,
+              session: data.session,
+              profile: profile || null,
+              isLoading: false
+            })
+          } else {
+            set({
+              user: data.user,
+              session: data.session,
+              isLoading: false
+            })
+          }
         } catch (error) {
           set({
             isLoading: false,

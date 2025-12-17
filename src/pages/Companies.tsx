@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Plus,
   Search,
@@ -9,15 +9,14 @@ import {
   Globe,
   Phone,
   Mail,
-  MapPin,
   Users,
-  X,
   Loader2,
   ExternalLink
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { cn, formatCurrency, getInitials, generateColor } from '../lib/utils'
+import { formatCurrency, getInitials, generateColor } from '../lib/utils'
 import { useAuthStore } from '../stores/authStore'
+import { Modal } from '../components/Modal'
 import type { Company } from '../types/database'
 
 export function Companies() {
@@ -316,166 +315,65 @@ export function Companies() {
       )}
 
       {/* Create/Edit Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-              onClick={() => setShowModal(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-                <h2 className="text-xl font-semibold text-white">
-                  {editingCompany ? 'Edit Company' : 'Add New Company'}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="label">Company Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="input"
-                      placeholder="Acme Inc."
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Domain</label>
-                    <input
-                      type="text"
-                      value={formData.domain}
-                      onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-                      className="input"
-                      placeholder="acme.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Website</label>
-                    <input
-                      type="url"
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      className="input"
-                      placeholder="https://acme.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Industry</label>
-                    <select
-                      value={formData.industry}
-                      onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                      className="input"
-                    >
-                      <option value="">Select industry</option>
-                      {industries.map(ind => (
-                        <option key={ind} value={ind}>{ind}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="label">Company Size</label>
-                    <select
-                      value={formData.size}
-                      onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                      className="input"
-                    >
-                      <option value="">Select size</option>
-                      {companySizes.map(size => (
-                        <option key={size} value={size}>{size} employees</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="label">Email</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="input"
-                      placeholder="contact@acme.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Phone</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="input"
-                      placeholder="+1 234 567 890"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Annual Revenue</label>
-                    <input
-                      type="number"
-                      value={formData.annual_revenue}
-                      onChange={(e) => setFormData({ ...formData, annual_revenue: e.target.value })}
-                      className="input"
-                      placeholder="1000000"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">LinkedIn URL</label>
-                    <input
-                      type="url"
-                      value={formData.linkedin_url}
-                      onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                      className="input"
-                      placeholder="https://linkedin.com/company/acme"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="label">Description</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="input min-h-[100px]"
-                      placeholder="Add notes about this company..."
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {editingCompany ? 'Save Changes' : 'Create Company'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingCompany ? 'Edit Company' : 'Add New Company'}>
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="label">Company Name *</label>
+              <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="input" placeholder="Acme Inc." />
+            </div>
+            <div>
+              <label className="label">Domain</label>
+              <input type="text" value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} className="input" placeholder="acme.com" />
+            </div>
+            <div>
+              <label className="label">Website</label>
+              <input type="url" value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} className="input" placeholder="https://acme.com" />
+            </div>
+            <div>
+              <label className="label">Industry</label>
+              <select value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} className="input">
+                <option value="">Select industry</option>
+                {industries.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="label">Company Size</label>
+              <select value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} className="input">
+                <option value="">Select size</option>
+                {companySizes.map(size => <option key={size} value={size}>{size} employees</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="label">Email</label>
+              <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="input" placeholder="contact@acme.com" />
+            </div>
+            <div>
+              <label className="label">Phone</label>
+              <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="input" placeholder="+1 234 567 890" />
+            </div>
+            <div>
+              <label className="label">Annual Revenue</label>
+              <input type="number" value={formData.annual_revenue} onChange={(e) => setFormData({ ...formData, annual_revenue: e.target.value })} className="input" placeholder="1000000" />
+            </div>
+            <div>
+              <label className="label">LinkedIn URL</label>
+              <input type="url" value={formData.linkedin_url} onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })} className="input" placeholder="https://linkedin.com/company/acme" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label">Description</label>
+              <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="input min-h-[100px]" placeholder="Add notes about this company..." />
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
+            <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl transition-colors">Cancel</button>
+            <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl transition-colors disabled:opacity-50">
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editingCompany ? 'Save Changes' : 'Create Company'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </motion.div>
   )
 }

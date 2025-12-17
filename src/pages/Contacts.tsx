@@ -1,25 +1,20 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  Plus,
   Search,
-  Filter,
-  MoreVertical,
   Mail,
   Phone,
   Building2,
   Edit2,
   Trash2,
   UserPlus,
-  Download,
-  Upload,
-  X,
   User,
   Loader2
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { cn, getInitials, formatDate, getStatusColor, generateColor } from '../lib/utils'
+import { cn, getInitials, getStatusColor, generateColor } from '../lib/utils'
 import { useAuthStore } from '../stores/authStore'
+import { Modal } from '../components/Modal'
 import type { Contact, Company } from '../types/database'
 
 interface ContactWithCompany extends Contact {
@@ -333,183 +328,157 @@ export function Contacts() {
       </div>
 
       {/* Create/Edit Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={editingContact ? 'Edit Contact' : 'Add New Contact'}
+      >
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">First Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                className="input"
+                placeholder="John"
+              />
+            </div>
+            <div>
+              <label className="label">Last Name</label>
+              <input
+                type="text"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                className="input"
+                placeholder="Doe"
+              />
+            </div>
+            <div>
+              <label className="label">Email</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="input"
+                placeholder="john@example.com"
+              />
+            </div>
+            <div>
+              <label className="label">Phone</label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="input"
+                placeholder="+1 234 567 890"
+              />
+            </div>
+            <div>
+              <label className="label">Mobile</label>
+              <input
+                type="tel"
+                value={formData.mobile}
+                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                className="input"
+                placeholder="+1 234 567 890"
+              />
+            </div>
+            <div>
+              <label className="label">Company</label>
+              <select
+                value={formData.company_id}
+                onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
+                className="input"
+              >
+                <option value="">Select company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>{company.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Job Title</label>
+              <input
+                type="text"
+                value={formData.job_title}
+                onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
+                className="input"
+                placeholder="Sales Manager"
+              />
+            </div>
+            <div>
+              <label className="label">Department</label>
+              <input
+                type="text"
+                value={formData.department}
+                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                className="input"
+                placeholder="Sales"
+              />
+            </div>
+            <div>
+              <label className="label">Lead Source</label>
+              <select
+                value={formData.lead_source}
+                onChange={(e) => setFormData({ ...formData, lead_source: e.target.value })}
+                className="input"
+              >
+                <option value="">Select source</option>
+                <option value="Website">Website</option>
+                <option value="Referral">Referral</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Trade Show">Trade Show</option>
+                <option value="Cold Call">Cold Call</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Status</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="input"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="do_not_contact">Do Not Contact</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="input min-h-[100px]"
+                placeholder="Add notes about this contact..."
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
+            <button
+              type="button"
               onClick={() => setShowModal(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[90vh]"
+              className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl transition-colors"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-                <h2 className="text-xl font-semibold text-white">
-                  {editingContact ? 'Edit Contact' : 'Add New Contact'}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="label">First Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.first_name}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                      className="input"
-                      placeholder="John"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Last Name</label>
-                    <input
-                      type="text"
-                      value={formData.last_name}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                      className="input"
-                      placeholder="Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Email</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="input"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Phone</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="input"
-                      placeholder="+1 234 567 890"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Mobile</label>
-                    <input
-                      type="tel"
-                      value={formData.mobile}
-                      onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                      className="input"
-                      placeholder="+1 234 567 890"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Company</label>
-                    <select
-                      value={formData.company_id}
-                      onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                      className="input"
-                    >
-                      <option value="">Select company</option>
-                      {companies.map((company) => (
-                        <option key={company.id} value={company.id}>{company.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="label">Job Title</label>
-                    <input
-                      type="text"
-                      value={formData.job_title}
-                      onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
-                      className="input"
-                      placeholder="Sales Manager"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Department</label>
-                    <input
-                      type="text"
-                      value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      className="input"
-                      placeholder="Sales"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Lead Source</label>
-                    <select
-                      value={formData.lead_source}
-                      onChange={(e) => setFormData({ ...formData, lead_source: e.target.value })}
-                      className="input"
-                    >
-                      <option value="">Select source</option>
-                      <option value="Website">Website</option>
-                      <option value="Referral">Referral</option>
-                      <option value="Social Media">Social Media</option>
-                      <option value="Trade Show">Trade Show</option>
-                      <option value="Cold Call">Cold Call</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="label">Status</label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="input"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="do_not_contact">Do Not Contact</option>
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="label">Description</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="input min-h-[100px]"
-                      placeholder="Add notes about this contact..."
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : null}
-                    {editingContact ? 'Save Changes' : 'Create Contact'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : null}
+              {editingContact ? 'Save Changes' : 'Create Contact'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </motion.div>
   )
 }

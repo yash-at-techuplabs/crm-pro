@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, CheckCircle2, Clock, AlertCircle, X, Loader2, Edit2, Trash2, Calendar, Flag } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Plus, Search, CheckCircle2, Clock, AlertCircle, Loader2, Edit2, Trash2, Calendar, Flag } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { cn, formatDate, getPriorityColor, getStatusColor } from '../lib/utils'
+import { cn, getPriorityColor } from '../lib/utils'
 import { useAuthStore } from '../stores/authStore'
+import { Modal } from '../components/Modal'
 import type { Task, Contact, Deal } from '../types/database'
 
 export function Tasks() {
@@ -228,39 +229,27 @@ export function Tasks() {
         </div>
       )}
 
-      <AnimatePresence>
-        {showModal && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={() => setShowModal(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg bg-slate-800 border border-slate-700 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[90vh]">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-                <h2 className="text-xl font-semibold text-white">{editingTask ? 'Edit Task' : 'Add Task'}</h2>
-                <button onClick={() => setShowModal(false)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg"><X className="w-5 h-5" /></button>
-              </div>
-              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
-                <div className="space-y-4">
-                  <div><label className="label">Title *</label><input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="Follow up with client" /></div>
-                  <div><label className="label">Description</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="input min-h-[80px]" placeholder="Task details..." /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="label">Priority</label><select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="input"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
-                    <div><label className="label">Due Date</label><input type="date" value={formData.due_date} onChange={(e) => setFormData({ ...formData, due_date: e.target.value })} className="input" /></div>
-                  </div>
-                  <div><label className="label">Contact</label><select value={formData.contact_id} onChange={(e) => setFormData({ ...formData, contact_id: e.target.value })} className="input"><option value="">Select contact</option>{contacts.map(c => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}</select></div>
-                  <div><label className="label">Deal</label><select value={formData.deal_id} onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })} className="input"><option value="">Select deal</option>{deals.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div>
-                </div>
-                <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
-                  <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl">Cancel</button>
-                  <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl disabled:opacity-50">
-                    {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {editingTask ? 'Save Changes' : 'Create Task'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingTask ? 'Edit Task' : 'Add Task'} maxWidth="max-w-lg">
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-4">
+            <div><label className="label">Title *</label><input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="input" placeholder="Follow up with client" /></div>
+            <div><label className="label">Description</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="input min-h-[80px]" placeholder="Task details..." /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="label">Priority</label><select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })} className="input"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+              <div><label className="label">Due Date</label><input type="date" value={formData.due_date} onChange={(e) => setFormData({ ...formData, due_date: e.target.value })} className="input" /></div>
+            </div>
+            <div><label className="label">Contact</label><select value={formData.contact_id} onChange={(e) => setFormData({ ...formData, contact_id: e.target.value })} className="input"><option value="">Select contact</option>{contacts.map(c => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}</select></div>
+            <div><label className="label">Deal</label><select value={formData.deal_id} onChange={(e) => setFormData({ ...formData, deal_id: e.target.value })} className="input"><option value="">Select deal</option>{deals.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div>
+          </div>
+          <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-700">
+            <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-xl">Cancel</button>
+            <button type="submit" disabled={isSaving} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-medium rounded-xl disabled:opacity-50">
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editingTask ? 'Save Changes' : 'Create Task'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </motion.div>
   )
 }
