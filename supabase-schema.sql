@@ -2,7 +2,7 @@
 -- Comprehensive CRM with contacts, leads, deals, tasks, and analytics
 
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- COMPANIES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS companies (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   domain TEXT,
   industry TEXT,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS companies (
 -- CONTACTS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS contacts (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   first_name TEXT NOT NULL,
   last_name TEXT,
   email TEXT,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS contacts (
 -- PIPELINES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS pipelines (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
   is_default BOOLEAN DEFAULT FALSE,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS pipelines (
 -- PIPELINE STAGES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS pipeline_stages (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   pipeline_id UUID REFERENCES pipelines(id) ON DELETE CASCADE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS pipeline_stages (
 -- LEADS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS leads (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   first_name TEXT NOT NULL,
   last_name TEXT,
   email TEXT,
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS leads (
 -- DEALS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS deals (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   value DECIMAL(15, 2) DEFAULT 0,
   currency TEXT DEFAULT 'USD',
@@ -170,7 +170,7 @@ ALTER TABLE leads ADD CONSTRAINT leads_converted_deal_fkey
 -- ACTIVITIES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS activities (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   type TEXT NOT NULL CHECK (type IN ('call', 'email', 'meeting', 'note', 'task', 'other')),
   subject TEXT NOT NULL,
   description TEXT,
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS activities (
 -- TASKS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS tasks (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
   priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 -- NOTES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS notes (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   content TEXT NOT NULL,
   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
   company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS notes (
 -- EMAIL TEMPLATES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS email_templates (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   subject TEXT NOT NULL,
   body TEXT NOT NULL,
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS email_templates (
 -- TAGS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS tags (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   color TEXT DEFAULT '#6366f1',
   description TEXT,
@@ -256,7 +256,7 @@ CREATE TABLE IF NOT EXISTS tags (
 -- AUDIT LOG TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   entity_type TEXT NOT NULL,
   entity_id UUID NOT NULL,
   action TEXT NOT NULL CHECK (action IN ('create', 'update', 'delete')),
